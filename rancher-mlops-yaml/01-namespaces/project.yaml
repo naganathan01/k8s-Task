@@ -1,0 +1,16 @@
+# Create MLOps project in Rancher
+apiVersion: management.cattle.io/v3
+kind: Project
+metadata:
+  name: p-mlops
+  namespace: local
+spec:
+  clusterId: local
+  displayName: "MLOps Project"
+  description: "Machine Learning Operations Project"
+  resourceQuota:
+    limit:
+      limitsCpu: "20"
+      limitsMemory: "20Gi"
+      requestsCpu: "10"
+      requestsMemory: "10Gi"

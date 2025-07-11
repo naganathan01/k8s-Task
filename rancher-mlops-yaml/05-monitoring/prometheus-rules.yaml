@@ -1,0 +1,57 @@
+# Fixed Prometheus Rules for Loan Model
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: loan-model-alerts
+  namespace: loan-model-prod
+  labels:
+    prometheus: rancher-monitoring-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: loan-model.rules
+    interval: 30s
+    rules:
+    - alert: LoanModelHighErrorRate
+      expr: rate(http_requests_total{job="loan-model-metrics",code=~"5.."}[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+        service: loan-model
+        team: ml-ops
+      annotations:
+        summary: "High error rate in loan default model"
+        description: "Error rate is {{ $value }} errors per second"
+        
+    - alert: LoanModelHighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="loan-model-metrics"}[5m])) > 1.0
+      for: 5m
+      labels:
+        severity: warning
+        service: loan-model
+        team: ml-ops
+      annotations:
+        summary: "High latency in loan default model"
+        description: "95th percentile latency is {{ $value }} seconds"
+        
+    - alert: LoanModelPodCrashLooping
+      expr: rate(kube_pod_container_status_restarts_total{namespace="loan-model-prod"}[15m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+        service: loan-model
+        team: ml-ops
+      annotations:
+        summary: "Loan model pod is crash looping"
+        description: "Pod {{ $labels.pod }} has restarted {{ $value }} times"
+        
+    - alert: LoanModelLowAccuracy
+      expr: model_accuracy < 0.85
+      for: 10m
+      labels:
+        severity: critical
+        service: loan-model
+        team: ml-ops
+      annotations:
+        summary: "Model accuracy dropped below threshold"
+        description: "Current accuracy is {{ $value }}"

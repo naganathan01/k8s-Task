@@ -1,0 +1,40 @@
+# Service for the model
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-model-service
+  namespace: loan-model-prod
+  labels:
+    app: loan-default-model
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: loan-default-model
+---
+# Service for metrics scraping
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-model-metrics
+  namespace: loan-model-prod
+  labels:
+    app: loan-default-model
+    component: metrics
+spec:
+  type: ClusterIP
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: loan-default-model

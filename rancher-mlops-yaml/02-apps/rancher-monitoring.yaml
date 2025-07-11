@@ -1,0 +1,46 @@
+# Install Rancher Monitoring (Prometheus + Grafana)
+apiVersion: catalog.cattle.io/v1
+kind: App
+metadata:
+  name: rancher-monitoring
+  namespace: cattle-monitoring-system
+spec:
+  chart:
+    metadata:
+      name: rancher-monitoring
+      version: "102.0.1+up40.1.2"
+  projectId: "local:p-mlops"
+  targetNamespace: cattle-monitoring-system
+  values:
+    prometheus:
+      prometheusSpec:
+        retention: "12h"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+    grafana:
+      adminPassword: "admin123"
+      persistence:
+        enabled: true
+        size: "2Gi"
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "512Mi"
+          cpu: "200m"
+    alertmanager:
+      enabled: true
+      alertmanagerSpec:
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"

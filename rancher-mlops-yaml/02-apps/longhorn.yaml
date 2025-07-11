@@ -1,0 +1,28 @@
+# Install Longhorn Storage
+apiVersion: catalog.cattle.io/v1
+kind: App
+metadata:
+  name: longhorn
+  namespace: longhorn-system
+spec:
+  chart:
+    metadata:
+      name: longhorn
+      version: "1.5.1"
+  projectId: "local:p-mlops"
+  targetNamespace: longhorn-system
+  values:
+    persistence:
+      defaultClassReplicaCount: 1
+    defaultSettings:
+      defaultDataPath: "/var/lib/longhorn/"
+      replicaSoftAntiAffinity: false
+      storageOverProvisioningPercentage: 200
+      storageMinimalAvailablePercentage: 25
+    longhornUI:
+      replicas: 1
+    ingress:
+      enabled: true
+      host: "longhorn.local"
+      annotations:
+        kubernetes.io/ingress.class: "nginx"

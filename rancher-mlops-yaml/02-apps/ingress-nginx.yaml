@@ -1,0 +1,32 @@
+# Install NGINX Ingress Controller
+apiVersion: catalog.cattle.io/v1
+kind: App
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  chart:
+    metadata:
+      name: ingress-nginx
+      version: "4.7.1"
+  projectId: "local:p-mlops"
+  targetNamespace: ingress-nginx
+  values:
+    controller:
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "512Mi"
+          cpu: "500m"
+      service:
+        type: "NodePort"
+        nodePorts:
+          http: 30080
+          https: 30443
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true

@@ -1,0 +1,41 @@
+# Model storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-storage-pvc
+  namespace: loan-model-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-ml
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Logs storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-storage-pvc
+  namespace: loan-model-prod
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn-ml
+  resources:
+    requests:
+      storage: 5Gi
+---
+# Training data PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: training-data-pvc
+  namespace: loan-model-prod
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn-ml
+  resources:
+    requests:
+      storage: 20Gi

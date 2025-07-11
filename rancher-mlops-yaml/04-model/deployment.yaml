@@ -1,0 +1,106 @@
+# Main model deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-default-model
+  namespace: loan-model-prod
+  labels:
+    app: loan-default-model
+    version: v1.0.0
+    component: model-api
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: loan-default-model
+  template:
+    metadata:
+      labels:
+        app: loan-default-model
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: model-api
+        image: nginx:latest  # Replace with your model image
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: MODEL_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: loan-model-config
+              key: MODEL_VERSION
+        - name: MODEL_THRESHOLD
+          valueFrom:
+            configMapKeyRef:
+              name: loan-model-config
+              key: MODEL_THRESHOLD
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: loan-model-config
+              key: ENVIRONMENT
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: loan-model-secrets
+              key: API_KEY
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        volumeMounts:
+        - name: model-storage
+          mountPath: /app/models
+        - name: logs-storage
+          mountPath: /app/logs
+        - name: config-volume
+          mountPath: /app/config
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-storage-pvc
+      - name: logs-storage
+        persistentVolumeClaim:
+          claimName: logs-storage-pvc
+      - name: config-volume
+        configMap:
+          name: loan-model-config

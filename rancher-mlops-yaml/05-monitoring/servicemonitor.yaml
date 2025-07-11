@@ -1,0 +1,18 @@
+# Prometheus service monitor for model metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loan-model-metrics
+  namespace: loan-model-prod
+  labels:
+    app: loan-default-model
+spec:
+  selector:
+    matchLabels:
+      app: loan-default-model
+      component: metrics
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    scrapeTimeout: 10s

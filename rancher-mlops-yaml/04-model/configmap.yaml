@@ -1,0 +1,36 @@
+# Model configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loan-model-config
+  namespace: loan-model-prod
+data:
+  MODEL_VERSION: "v1.0.0"
+  MODEL_THRESHOLD: "0.1"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  PROMETHEUS_PORT: "8080"
+  MODEL_PATH: "/app/models/xgboost_model.joblib"
+  SCALER_PATH: "/app/models/scaler.joblib"
+  FEATURE_COLUMNS: |
+    [
+      "debt_to_income_ratio",
+      "employment_years", 
+      "age_years",
+      "credit_amount",
+      "income_per_family_member",
+      "total_assets",
+      "annuity_to_income",
+      "days_birth"
+    ]
+---
+# Model secrets
+apiVersion: v1
+kind: Secret
+metadata:
+  name: loan-model-secrets
+  namespace: loan-model-prod
+type: Opaque
+data:
+  API_KEY: YWRtaW4xMjM=  # base64 encoded "admin123"
+  DB_PASSWORD: cGFzc3dvcmQxMjM=  # base64 encoded "password123"

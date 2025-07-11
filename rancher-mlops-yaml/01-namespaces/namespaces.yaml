@@ -1,0 +1,48 @@
+# Create all required namespaces
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cattle-monitoring-system
+  labels:
+    field.cattle.io/projectId: "local:p-mlops"
+    name: cattle-monitoring-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+  labels:
+    field.cattle.io/projectId: "local:p-mlops"
+    name: longhorn-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-nginx
+  labels:
+    field.cattle.io/projectId: "local:p-mlops"
+    name: ingress-nginx
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: loan-model-dev
+  labels:
+    field.cattle.io/projectId: "local:p-mlops"
+    name: loan-model-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: loan-model-prod
+  labels:
+    field.cattle.io/projectId: "local:p-mlops"
+    name: loan-model-prod
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cattle-fleet-system
+  labels:
+    field.cattle.io/projectId: "local:p-mlops"
+    name: cattle-fleet-system

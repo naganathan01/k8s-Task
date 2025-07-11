@@ -1,0 +1,118 @@
+# Custom Grafana dashboard for loan model
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loan-model-dashboard
+  namespace: cattle-monitoring-system
+  labels:
+    grafana_dashboard: "1"
+data:
+  loan-model-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Loan Default Model Dashboard",
+        "tags": ["ml", "loan-model"],
+        "timezone": "browser",
+        "refresh": "5s",
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "panels": [
+          {
+            "id": 1,
+            "title": "Prediction Rate",
+            "type": "stat",
+            "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+            "targets": [
+              {
+                "expr": "rate(predictions_total[5m])",
+                "legendFormat": "Predictions/sec"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "color": {"mode": "palette-classic"}
+              }
+            }
+          },
+          {
+            "id": 2,
+            "title": "Model Accuracy",
+            "type": "stat",
+            "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+            "targets": [
+              {
+                "expr": "model_accuracy",
+                "legendFormat": "Current Accuracy"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percentunit",
+                "min": 0,
+                "max": 1,
+                "color": {"mode": "thresholds"},
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "yellow", "value": 0.8},
+                    {"color": "green", "value": 0.85}
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": 3,
+            "title": "Response Time",
+            "type": "timeseries",
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"loan-model-metrics\"}[5m]))",
+                "legendFormat": "50th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"loan-model-metrics\"}[5m]))",
+                "legendFormat": "95th percentile"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "s",
+                "color": {"mode": "palette-classic"}
+              }
+            }
+          },
+          {
+            "id": 4,
+            "title": "Error Rate",
+            "type": "timeseries",
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"loan-model-metrics\",code=~\"2..\"}[5m])",
+                "legendFormat": "2xx Success"
+              },
+              {
+                "expr": "rate(http_requests_total{job=\"loan-model-metrics\",code=~\"4..\"}[5m])",
+                "legendFormat": "4xx Client Error"
+              },
+              {
+                "expr": "rate(http_requests_total{job=\"loan-model-metrics\",code=~\"5..\"}[5m])",
+                "legendFormat": "5xx Server Error"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "color": {"mode": "palette-classic"}
+              }
+            }
+          }
+        ]
+      }
+    }
